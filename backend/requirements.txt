@@ -3,3 +3,4 @@ djangorestframework>=3.14
 requests>=2.31
 beautifulsoup4>=4.12
 django-cors-headers>=4.3
+gunicorn>=21.2
