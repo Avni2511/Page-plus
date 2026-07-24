@@ -1,122 +1,174 @@
 # Page Pulse
 
 ## Overview
-**Page Pulse** is a webpage auditing utility designed to analyze the metadata, SEO posture, and response latency of any public website. A user enters a URL on the frontend dashboard, and the tool evaluates and presents performance indicators, tag hygiene, and content metrics.
+
+**Page Pulse** is a webpage auditing utility designed to analyze the metadata, SEO posture, and response latency of any public website. A user enters a URL on the Page Pulse dashboard, and the tool evaluates and presents performance indicators, tag hygiene, and content metrics.
+
+The application is built with Django REST Framework and uses Requests and BeautifulSoup4 to fetch and analyze the target webpage. The frontend is served through Django, allowing the complete application to be accessed from a single URL.
 
 ---
 
 ## Features
-- **HTTP Status Code Auditor**: Reports status of the remote server.
-- **Latency Tracker**: Measures precise page fetch response times.
-- **Title & Description Extractor**: Validates `<title>` and `<meta name="description">` tags.
-- **Header Structure Audit**: Counts `<h1>` element frequencies.
-- **Image Accessibility Check**: Identifies `<img>` tags missing or containing empty `alt` attributes.
-- **Clean Content word-counter**: Excludes scripts, stylesheets, and navigation templates to calculate visible word count.
-- **Robust Exception Shielding**: Prevents Python tracebacks from leaking to the client interface.
+
+- **HTTP Status Code Auditor**: Reports the HTTP status code returned by the remote server.
+- **Latency Tracker**: Measures the response time required to fetch the target webpage.
+- **Title & Description Extractor**: Extracts and validates the `<title>` and `<meta name="description">` tags.
+- **Header Structure Audit**: Counts `<h1>` elements present on the webpage.
+- **Image Accessibility Check**: Identifies `<img>` elements with missing or empty `alt` attributes.
+- **Clean Content Word Counter**: Calculates visible word count while excluding scripts, stylesheets, and other non-content elements.
+- **Robust Exception Shielding**: Handles invalid URLs, network failures, timeouts, and non-HTML responses without exposing server-side tracebacks to users.
+- **Single-URL Application**: Django serves both the frontend dashboard and REST API from the same deployed application.
 
 ---
 
 ## Tech Stack
-- **Backend Framework**: Django + Django REST Framework (DRF)
-- **Scraping & Parsing**: Requests, BeautifulSoup4
-- **Frontend Engine**: HTML5, Vanilla CSS3 (Custom design system), Vanilla ES6 JavaScript (Fetch API)
-- **Test Runner**: Django TestCase + Unittest Mock
+
+- **Backend**: Django, Django REST Framework (DRF)
+- **Web Fetching & Parsing**: Requests, BeautifulSoup4
+- **Frontend**: HTML5, CSS3, Vanilla JavaScript (Fetch API)
+- **Testing**: Django TestCase, unittest.mock
+- **Production Server**: Gunicorn
+- **Deployment**: Render
 
 ---
 
 ## Architecture
+
+```text
+                 Page Pulse Dashboard
+                    HTML/CSS/JS
+                         │
+                         │ POST /api/audit/
+                         ▼
+              Django REST Framework
+                    API View
+                         │
+                         ▼
+                URL Fetching Service
+                     Requests
+                         │
+                         ▼
+                 HTML Parser Service
+                  BeautifulSoup4
+                         │
+                         ▼
+                  Extract Audit Data
+                         │
+                         ▼
+                JSON API Response
+                         │
+                         ▼
+              Frontend DOM Rendering
+                         │
+                         ▼
+                  Audit Report
 ```
-   Frontend Dashboard (HTML/CSS/JS)
-                 │
-                 ▼  (HTTP POST /api/audit/)
-     Django REST Framework API View
-                 │
-                 ▼  (Invoke Fetcher)
-      URL Fetching Service (requests)
-                 │
-                 ▼  (Extract Metrics)
-      HTML Parser Service (BeautifulSoup4)
-                 │
-                 ▼  (Formulate Response)
-      Django API View (JSON payload)
-                 │
-                 ▼  (Render Cards)
-   Frontend Results Render (DOM Updates)
-```
+
+The application follows a separation-of-concerns approach:
+
+- **Views** handle HTTP requests, input validation, and API responses.
+- **Services** handle external webpage fetching, response timing, timeouts, and network errors.
+- **Parsers** handle HTML analysis and extract audit metrics using BeautifulSoup4.
+- **Frontend** displays the audit results and handles user interaction.
 
 ---
 
 ## Project Structure
-```
+
+```text
 page-pulse/
 │
 ├── backend/
 │   ├── manage.py
 │   ├── requirements.txt
+│   │
 │   ├── config/
 │   │   ├── settings.py
 │   │   ├── urls.py
 │   │   └── wsgi.py
 │   │
 │   └── auditor/
-│       ├── parsers.py         # BS4 HTML parsing rules
-│       ├── services.py        # Fetching engine and timing logic
-│       ├── views.py           # API views and payload validators
-│       ├── urls.py            # App route map
-│       ├── tests.py           # API and service unit test cases
+│       ├── parsers.py         # BeautifulSoup HTML parsing logic
+│       ├── services.py        # URL fetching and response timing logic
+│       ├── views.py           # API views and request handling
+│       ├── urls.py            # API route configuration
+│       ├── tests.py           # Automated test cases
 │       └── apps.py
 │
 ├── frontend/
-│   ├── index.html             # Dashboard view structure
+│   ├── index.html             # Dashboard interface
 │   ├── style.css              # Custom styling
-│   └── script.js              # Fetch connection and dynamic state actions
+│   └── script.js              # API communication and UI logic
 │
+├── README.md
 └── .gitignore
 ```
 
 ---
 
-## Setup Instructions
+## Local Setup Instructions
 
-### Backend Setup
+### Prerequisites
 
-1. **Create and Activate a Virtual Environment**:
-   ```powershell
-   # Windows (PowerShell)
-   python -m venv venv
-   .\venv\Scripts\Activate.ps1
-   
-   # Linux/macOS
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
+- Python 3.10+
+- Git
 
-2. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+### 1. Clone the Repository
 
-3. **Run Migrations**:
-   ```bash
-   python manage.py migrate
-   ```
+```bash
+git clone <your-github-repository-url>
+cd page-pulse
+```
 
-4. **Launch Server**:
-   ```bash
-   python manage.py runserver
-   ```
-   The backend API will run on `http://127.0.0.1:8000/`.
+### 2. Navigate to the Backend
 
-### Frontend Setup
+```bash
+cd backend
+```
 
-Since the frontend is built using standard Vanilla Web components:
-- Open `frontend/index.html` directly in any web browser, OR
-- Serve it using a lightweight local web server:
-  ```bash
-  # Python 3 built-in server
-  python -m http.server 8080 --directory frontend
-  ```
-  Then open `http://localhost:8080` in your web browser.
+### 3. Create and Activate a Virtual Environment
+
+#### Windows PowerShell
+
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+```
+
+#### Linux/macOS
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 4. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 5. Run Database Migrations
+
+```bash
+python manage.py migrate
+```
+
+### 6. Start the Development Server
+
+```bash
+python manage.py runserver
+```
+
+### 7. Open the Application
+
+Open the following URL in your browser:
+
+```text
+http://127.0.0.1:8000/
+```
+
+The Django application serves both the Page Pulse frontend and the REST API. No separate frontend development server is required.
 
 ---
 
@@ -124,14 +176,20 @@ Since the frontend is built using standard Vanilla Web components:
 
 ### POST `/api/audit/`
 
-#### Request Payload
+Analyzes a public webpage and returns audit metrics.
+
+### Request Payload
+
 ```json
 {
     "url": "https://example.com"
 }
 ```
 
-#### Success Response (`200 OK`)
+### Success Response
+
+**HTTP Status: `200 OK`**
+
 ```json
 {
     "url": "https://example.com",
@@ -145,21 +203,30 @@ Since the frontend is built using standard Vanilla Web components:
 }
 ```
 
-#### Client Validation Error (`400 Bad Request`)
+### Client Validation Error
+
+**HTTP Status: `400 Bad Request`**
+
 ```json
 {
     "error": "Invalid URL. Please provide a valid HTTP or HTTPS URL."
 }
 ```
 
-#### Target Non-HTML Error (`422 Unprocessable Entity`)
+### Target Non-HTML Error
+
+**HTTP Status: `422 Unprocessable Entity`**
+
 ```json
 {
     "error": "The provided URL does not return an HTML document."
 }
 ```
 
-#### Target Gateway Timeout Error (`504 Gateway Timeout`)
+### Target Gateway Timeout Error
+
+**HTTP Status: `504 Gateway Timeout`**
+
 ```json
 {
     "error": "The request timed out while trying to reach the URL."
@@ -169,34 +236,103 @@ Since the frontend is built using standard Vanilla Web components:
 ---
 
 ## Error Handling
-1. **Invalid URLs**: Validates scheme (`http://` or `https://`) and formats using Django's core `URLValidator`.
-2. **Timeout**: Restricts requests to 10 seconds. Throws standard gateway error rather than keeping threads open.
-3. **Network Failure**: Catches DNS resolution errors or server disconnects safely and displays clean client-facing feedback.
-4. **Non-HTML responses**: Inspects response `Content-Type` header and rejects non-HTML payloads immediately.
+
+The application handles common failure scenarios gracefully:
+
+1. **Invalid URLs**  
+   Validates that the provided URL uses a valid HTTP or HTTPS scheme before processing the request.
+
+2. **Timeouts**  
+   Applies a request timeout to prevent slow or unresponsive websites from blocking the application indefinitely.
+
+3. **Network Failures**  
+   Handles DNS resolution failures, connection errors, and server disconnections with structured client-facing error responses.
+
+4. **Non-HTML Responses**  
+   Checks the target response content type and rejects resources that do not return HTML content.
+
+5. **Exception Shielding**  
+   Prevents internal Python tracebacks and sensitive server-side details from being exposed to users.
 
 ---
 
 ## Testing
-To run the automated Django test suite, run the following command in the `backend/` directory:
+
+Automated tests are implemented using Django's testing framework and Python's `unittest.mock`.
+
+To run the test suite, navigate to the `backend/` directory and execute:
+
 ```bash
 python manage.py test auditor
 ```
+
+The tests cover the application's audit functionality and error-handling scenarios.
 
 ---
 
 ## Design Decisions
 
-1. **Why Django REST Framework (DRF) was used**:
-   Provides robust serialization, validation, standard HTTP error responses, and clean architectural abstractions for developing reliable Web APIs.
-2. **Why parsing logic was separated from the API view**:
-   Decoupling the BeautifulSoup parser (`parsers.py`) and remote page retriever (`services.py`) from the view handler (`views.py`) ensures modular, reusable, and unit-testable code that respects the single responsibility principle.
-3. **Why timeout and error handling were implemented**:
-   Ensures application reliability. Bad or slow URLs provided by users could crash threads or trigger server timeouts; wrapping external calls safeguards the backend and prevents Python stack trace leaks.
+### 1. Separation of Concerns
+
+The application separates API views, webpage fetching, and HTML parsing into different modules.
+
+- `views.py` handles HTTP requests and responses.
+- `services.py` handles external webpage fetching and network operations.
+- `parsers.py` handles BeautifulSoup-based HTML parsing.
+
+This separation keeps the application modular, reusable, and easier to test.
+
+### 2. Robust Exception Handling
+
+External webpages can fail due to invalid URLs, DNS errors, timeouts, or unexpected response types. These failures are mapped to structured API responses instead of exposing internal server tracebacks.
+
+This improves reliability and provides a safer user experience.
+
+### 3. Single-URL Application Architecture
+
+The frontend and backend are served through the same Django application. This simplifies deployment and allows users to access the complete Page Pulse application through a single URL.
+
+### 4. Production Configuration
+
+The application uses Gunicorn as the production WSGI server and is deployed as a Django Web Service on Render.
+
+---
+
+## Deployment
+
+The Page Pulse application is deployed on Render using Django and Gunicorn.
+
+### Production Server
+
+Gunicorn is used to serve the Django application in production:
+
+```bash
+gunicorn config.wsgi:application
+```
+
+### Live Application
+
+**Page Pulse Live Application:**
+
+https://page-plus-61vy.onrender.com/
+
+The deployed application serves the Page Pulse frontend and Django REST API through a single URL.
 
 ---
 
 ## Future Improvements
-1. **Scraping Agent Rotation**: Implement rotating User-Agent strings and proxy rotators to avoid bot-detection blocking.
-2. **Asynchronous Scraping (Celery + Redis)**: Hand off scraping execution to background workers for massive performance gains when auditing larger pages or multiple URLs in batches.
-3. **Audit History DB Store**: Save report records in database to let users compare progress over time.
-4. **Deep SEO Checks**: Add page speed metrics, link validation (checking for broken anchors), and schema markup audits.
+
+1. **Asynchronous Scraping (Celery + Redis)**  
+   Move webpage auditing to background workers to prevent long-running scraping operations from blocking Django request workers when handling multiple concurrent requests.
+
+2. **Audit History Database**  
+   Store audit reports in a database so users can view and compare previous audit results over time.
+
+3. **Deep SEO Checks**  
+   Add additional checks for broken links, page speed metrics, canonical tags, Open Graph metadata, structured data, and schema markup.
+
+4. **Batch URL Auditing**  
+   Allow users to submit and audit multiple URLs in a single operation.
+
+5. **Improved Monitoring and Observability**  
+   Add application logging and monitoring to track errors, response times, and service health in production.
