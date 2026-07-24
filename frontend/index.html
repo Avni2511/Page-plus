@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Pulse | Professional Webpage Auditor</title>
+    
+    <!-- Modern Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header / Branding -->
+        <header class="app-header">
+            <div class="logo">
+                <span class="logo-pulse">⚡</span>
+                <h1>Page<span class="highlight">Pulse</span></h1>
+            </div>
+            <p class="subtitle">Instantly analyze and audit webpage metadata, performance, and SEO structure.</p>
+        </header>
+
+        <!-- Main Workspace Area -->
+        <main class="main-content">
+            <!-- URL Input Panel -->
+            <section class="search-panel">
+                <form id="audit-form" class="audit-form" novalidate>
+                    <div class="input-wrapper">
+                        <input 
+                            type="url" 
+                            id="url-input" 
+                            placeholder="Enter website URL (e.g. https://example.com)" 
+                            required
+                        >
+                        <button type="submit" id="submit-btn" class="btn btn-primary">
+                            <span class="btn-text">Audit Webpage</span>
+                            <span class="spinner hidden"></span>
+                        </button>
+                    </div>
+                    <div class="client-error hidden" id="client-error">Please enter a valid HTTP or HTTPS URL.</div>
+                </form>
+            </section>
+
+            <!-- Loading Skeleton / Status State -->
+            <section id="status-panel" class="status-panel hidden">
+                <div class="loading-container">
+                    <div class="radar-pulse"></div>
+                    <p>Analyzing HTML structure, response time, and tags...</p>
+                </div>
+            </section>
+
+            <!-- Error Banner -->
+            <section id="error-panel" class="error-panel hidden">
+                <div class="error-card">
+                    <span class="error-icon">⚠️</span>
+                    <div class="error-details">
+                        <h3>Audit Failed</h3>
+                        <p id="error-message">Unable to audit the requested URL.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dashboard Results (Hidden by default) -->
+            <section id="results-panel" class="results-panel hidden">
+                <div class="results-header">
+                    <h2>Audit Report: <span id="report-url" class="report-url-text">https://example.com</span></h2>
+                </div>
+                
+                <div class="results-grid">
+                    <!-- Card 1: HTTP Status -->
+                    <div class="card status-card">
+                        <div class="card-icon">🏷️</div>
+                        <div class="card-info">
+                            <h3>HTTP Status</h3>
+                            <div class="card-value" id="res-status">200</div>
+                            <p class="card-label" id="res-status-lbl">Server response code</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Response Time -->
+                    <div class="card time-card">
+                        <div class="card-icon">⏱️</div>
+                        <div class="card-info">
+                            <h3>Response Time</h3>
+                            <div class="card-value"><span id="res-time">0.42</span><span class="unit">s</span></div>
+                            <p class="card-label">Time to fetch response content</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Word Count -->
+                    <div class="card words-card">
+                        <div class="card-icon">📝</div>
+                        <div class="card-info">
+                            <h3>Visible Words</h3>
+                            <div class="card-value" id="res-words">150</div>
+                            <p class="card-label">Approximate clean word count</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: H1 Headers Count -->
+                    <div class="card h1-card">
+                        <div class="card-icon">🔠</div>
+                        <div class="card-info">
+                            <h3>H1 Elements</h3>
+                            <div class="card-value" id="res-h1">1</div>
+                            <p class="card-label">Total h1 header tags found</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 5: Missing Alt Images -->
+                    <div class="card images-card">
+                        <div class="card-icon">🖼️</div>
+                        <div class="card-info">
+                            <h3>Missing Alt Text</h3>
+                            <div class="card-value" id="res-images">2</div>
+                            <p class="card-label">Images lacking alt attributes</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 6: Page Title (Large layout) -->
+                    <div class="card span-full title-card">
+                        <div class="card-icon">📌</div>
+                        <div class="card-info">
+                            <h3>Webpage Title</h3>
+                            <div class="meta-content" id="res-title">Example Domain</div>
+                        </div>
+                    </div>
+
+                    <!-- Card 7: Meta Description (Large layout) -->
+                    <div class="card span-full desc-card">
+                        <div class="card-icon">💬</div>
+                        <div class="card-info">
+                            <h3>Meta Description</h3>
+                            <div class="meta-content" id="res-desc">Example description</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Required Footer -->
+        <footer class="app-footer">
+            <p>Built for <a href="https://digitalheroesco.com" target="_blank" rel="noopener noreferrer">Digital Heroes Training Task</a></p>
+        </footer>
+    </div>
+
+    <!-- JavaScript Module -->
+    <script src="script.js"></script>
+</body>
+</html>
